@@ -1,7 +1,7 @@
 """Generate Markov text from text files."""
 
 from random import choice
-
+# from pprint import pprint
 
 def open_and_read_file(file_path):
     """Take file path as string; return text as string.
@@ -10,9 +10,10 @@ def open_and_read_file(file_path):
     the file's contents as one string of text.
     """
 
-    # your code goes here
+    with open(file_path, 'rt') as input_file:
+        read_data = input_file.read() # NOTE this has no restrictions on the input size. It could try to read in a file larger than system memory. Although, this scenario is unlikely
 
-    return 'Contents of your file as one long string'
+    return read_data.rstrip()
 
 
 def make_chains(text_string):
@@ -42,7 +43,12 @@ def make_chains(text_string):
 
     chains = {}
 
-    # your code goes here
+    words = text_string.split()
+    # Create tuples for each bigram and add it as a key to our dictionary. Append the word after the bigram to the list of words for that bigram key
+    for i in range(len(words) - 2):
+        if (words[i], words[i + 1]) not in chains:
+            chains[(words[i], words[i + 1])] = []
+        chains[(words[i], words[i + 1])].append(words[i + 2])
 
     return chains
 
@@ -52,18 +58,27 @@ def make_text(chains):
 
     words = []
 
-    # your code goes here
+    link = choice(list(chains))
+    words.append(link[0].capitalize())
+    words.append(link[1])
+    
+    while link in chains:
+        next_word = choice(chains[link])
+        words.append(next_word)
+        link = (link[1], next_word)
 
     return ' '.join(words)
 
 
-input_path = 'green-eggs.txt'
+# input_path = 'green-eggs.txt'
+input_path = 'gettysburg.txt'
 
 # Open the file and turn it into one long string
 input_text = open_and_read_file(input_path)
 
 # Get a Markov chain
 chains = make_chains(input_text)
+# pprint(chains)
 
 # Produce random text
 random_text = make_text(chains)
